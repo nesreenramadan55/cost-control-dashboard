@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import pandas as pd
 import numpy as np
 import re
@@ -287,8 +287,7 @@ def main():
 
 
 if __name__ == "__main__":
-=======
-import pandas as pd
+ import pandas as pd
 import numpy as np
 import re
 from pathlib import Path
@@ -576,5 +575,5 @@ def main():
 
 
 if __name__ == "__main__":
->>>>>>> 5549218358b52e5c08bd0e0e64f0cfe5ff9b624c
+
     main()
