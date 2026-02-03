@@ -23,7 +23,7 @@ st.markdown(
 )
 
 REQUIRED_SHEETS = ["Transactions_Long"]  # minimum required
-st.caption("update test")
+
 @st.cache_data
 def load_excel(uploaded_file):
     # Read only what we need (fast)
@@ -100,6 +100,7 @@ type_labels = {
     "GI": "General Item (GI)"
 }
 TOTAL_PASSENGERS = 35488
+DAYS_IN_MONTH = 31
 total_passengers = "TOTAL_PASSENGERS"
 
 
@@ -131,6 +132,8 @@ cat_choice = st.sidebar.selectbox("Category", ["ALL"] + cats, index=0)
 
 day_min, day_max = int(tx["day"].min()), int(tx["day"].max())
 day_range = st.sidebar.slider("Day range", day_min, day_max, (day_min, day_max))
+start_day, end_day = day_range
+selected_days = (end_day - start_day) +1
 
 top_n = st.sidebar.slider("Top N items", 3, 30, 15)
 
@@ -177,15 +180,28 @@ cat_cost = (
     .sum()
     .sort_values("cost", ascending=False)
 )
+
 total_sales = filtered["sales_value"].sum()
+
+# NEW metrics affected by day_range
+avg_pax_per_day = (TOTAL_PASSENGERS / DAYS_IN_MONTH) 
+total_pax_range= selected_days * avg_pax_per_day
+avg_sale_per_pax_per_day = ( monthly_total / total_pax_range ) #if (avg_pax_per_day> 0 and selected_days > 0) else 0.0
+
+
+
 sales_per_passenger = total_sales / TOTAL_PASSENGERS if TOTAL_PASSENGERS > 0 else 0
-k1, k2, k3, k4, k5, k6= st.columns(6)
+k1, k2, k3, k4, k5, k6, k7= st.columns(7)
 k1.metric("Monthly Total Value(Sales)", f"{monthly_total:,.2f}")
 k2.metric("Unique items ordered", f"{unique_items:,}")
 k3.metric("Peak day", "-" if peak_day is None else f"Day {peak_day}")
 k4.metric("Peak day sales", f"{peak_cost:,.2f}")
-k5.metric("Total Passengers" , f"{TOTAL_PASSENGERS:,}")
-k6.metric ("Sales per Pass" , f"{sales_per_passenger:,.2f}")
+k5.metric("Total Pax" , f"{TOTAL_PASSENGERS:,}")
+#k6.metric ("AV Sale/Pax/Day" , f"{sales_per_passenger:,.2f}")
+k6.metric("AV Sale/Pax/Day", f"{avg_sale_per_pax_per_day:,.2f}")
+
+# new metric
+k7.metric("Total Pax/Day", f"{total_pax_range:,.2f}")
 
 
 st.divider()
@@ -450,7 +466,7 @@ def render_sales_cost(filtered):
     c1.metric("Total Sales (Revenue)", f"{total_sales:,.2f}")
     c2.metric("Total Cost (COGS)", f"{total_cost:,.2f}")
     c3.metric("Cost-to-Sales %", f"{cost_ratio:,.1f}%")
-    c4.metric("Total Profit", f"{total_profit:,.2f}")
+    c4.metric("GP", f"{total_profit:,.2f}")
     st.divider()
         # =========================
     # Profit per Day (Trend)
