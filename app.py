@@ -135,7 +135,7 @@ day_range = st.sidebar.slider("Day range", day_min, day_max, (day_min, day_max))
 start_day, end_day = day_range
 selected_days = (end_day - start_day) +1
 
-top_n = st.sidebar.slider("Top N items", 3, 30, 15)
+top_n = st.sidebar.slider("Top N items", 5, 50, 15)
 
 filtered = tx.copy()
 
