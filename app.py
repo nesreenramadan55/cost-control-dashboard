@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -99,9 +98,9 @@ type_labels = {
     "BEV": "Beverage (BEV)",
     "GI": "General Item (GI)"
 }
-TOTAL_PASSENGERS = 35488
-DAYS_IN_MONTH = 31
-total_passengers = "TOTAL_PASSENGERS"
+TOTAL_PASSENGERS = 25592
+DAYS_IN_MONTH = 28
+total_passengers = TOTAL_PASSENGERS
 
 
 # get available types in the current dataset
@@ -555,4 +554,9 @@ if page == "Overview":
     render_overview(filtered, fig_alerts=None)
 else: 
     render_sales_cost(filtered)
+
+
+
+
+
 
