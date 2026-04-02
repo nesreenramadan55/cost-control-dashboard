@@ -1,5 +1,6 @@
 
 
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -17,63 +18,52 @@ st.markdown(
         </div>
         <div style="font-size:20px; opacity:0.8; margin-top:6px;">
             By Nesreen
-    
+        </div>
     </div>
     """,
     unsafe_allow_html=True
 )
 
-REQUIRED_SHEETS = ["Transactions_Long", "pax"]  # minimum required
+REQUIRED_SHEETS = ["Transactions_Long"]  # minimum required
 
 @st.cache_data
 def load_excel(uploaded_file):
     # Read only what we need (fast)
-    
     xls = pd.ExcelFile(uploaded_file)
     sheets = xls.sheet_names
-    
+
     # Ensure minimum sheet exists
     for s in REQUIRED_SHEETS:
         if s not in sheets:
             raise ValueError(f"Missing required sheet: {s}")
 
     tx = pd.read_excel(uploaded_file, sheet_name="Transactions_Long")
-    pax = pd.read_excel(uploaded_file, sheet_name= "pax")
 
     # Optional sheets (if they exist)
     top_items = pd.read_excel(uploaded_file, sheet_name="Top_Cost_Items") if "Top_Cost_Items" in sheets else None
     alerts = pd.read_excel(uploaded_file, sheet_name="Alerts") if "Alerts" in sheets else None
     summary = pd.read_excel(uploaded_file, sheet_name="Management_Summary") if "Management_Summary" in sheets else None
 
-    return tx, pax, top_items, alerts, summary, sheets
+    return tx, top_items, alerts, summary, sheets
 
 
 def safe_num(s):
     return pd.to_numeric(s, errors="coerce").fillna(0)
 
 
-uploaded = st.file_uploader("Upload your Excel file", type=["xlsx"])
+#st.title("LBACC — Cost Control Dashboard")
 
-if uploaded is None:
+uploaded = st.file_uploader("Upload the monthly output Excel (..xlsx)", type=["xlsx"])
+
+if not uploaded:
     st.info("Upload the Excel output file to start.")
     st.stop()
 
 try:
-    tx, pax, top_items, alerts, summary, sheet_names = load_excel(uploaded)
+    tx, top_items, alerts, summary, sheet_names = load_excel(uploaded)
 except Exception as e:
     st.error(f"Could not read the file: {e}")
     st.stop()
-
-TOTAL_PASSENGERS = 0
-DAYS_IN_MONTH = 30
-
-if pax is not None and not pax.empty:
-    pax.columns = ["key", "value"]
-
-    config_map = dict(zip(pax["key"], pax["value"]))
-
-    TOTAL_PASSENGERS = int(config_map.get("TOTAL_PASSENGERS", 0))
-    DAYS_IN_MONTH = int(config_map.get("DAYS_IN_MONTH", 30))
 
 # --- Normalize columns ---
 tx.columns = [str(c).strip() for c in tx.columns]
@@ -111,7 +101,8 @@ type_labels = {
     "BEV": "Beverage (BEV)",
     "GI": "General Item (GI)"
 }
-
+TOTAL_PASSENGERS = 25592
+DAYS_IN_MONTH = 28
 total_passengers = TOTAL_PASSENGERS
 
 
@@ -566,3 +557,4 @@ if page == "Overview":
     render_overview(filtered, fig_alerts=None)
 else: 
     render_sales_cost(filtered)
+

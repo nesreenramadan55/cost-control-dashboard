@@ -79,6 +79,8 @@ def main():
     long_df = long_df[long_df["qty"].fillna(0) != 0]
 
 
+
+
 # Clean numeric columns
     # Clean numeric columns
     long_df["qty"] = pd.to_numeric(long_df["qty"], errors="coerce").fillna(0)
@@ -575,3 +577,5 @@ def main():
 
 
 if __name__ == "__main__":
+
+    main()
